@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/codemagic-ci-cd/codemagic-docs/master/docs/yaml-schema.json
+workflows:
+  ios-workflow:
+    name: iOS Workflow
+    instance_type: mac_mini_m1
+    environment:
+      xcode: latest
+    scripts:
+      - name: List available simulators
+        script: |
+          xcrun simctl list devices available
+      - name: Build iOS app
+        script: |
+          xcodebuild build -project "SimpleAccounting.xcodeproj" -scheme "SimpleAccounting" -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      - name: Create IPA file
+        script: |
+          # Find the .app file
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -type d | head -n 1)
+          
+          if [ -n "$APP_PATH" ]; then
+            echo "Found app at: $APP_PATH"
+            
+            # Create Payload directory
+            mkdir -p Payload
+            
+            # Copy .app to Payload
+            cp -R "$APP_PATH" Payload/
+            
+            # Create .ipa file
+            zip -r SimpleAccounting.ipa Payload
+            
+            # Move to build directory
+            mkdir -p build
+            mv SimpleAccounting.ipa build/
+            
+            echo "Created IPA at: build/SimpleAccounting.ipa"
+            ls -la build/
+          else
+            echo "SimpleAccounting.app not found in DerivedData"
+            exit 1
+          fi
+    artifacts:
+      - build/*.ipa

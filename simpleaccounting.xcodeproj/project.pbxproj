@@ -1,0 +1,259 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000010002000000000001 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000002 /* App.swift */; };
+		A10000010002000000000003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000004 /* ContentView.swift */; };
+		A10000010002000000000005 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000006 /* Transaction.swift */; };
+		A10000010002000000000007 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000008 /* Category.swift */; };
+		A10000010002000000000009 /* Budget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000200000000000A /* Budget.swift */; };
+		A1000001000200000000000B /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000200000000000C /* Tag.swift */; };
+		A1000001000200000000000D /* Ledger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000200000000000E /* Ledger.swift */; };
+		A1000001000200000000000F /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000010 /* DataService.swift */; };
+		A10000010002000000000011 /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000012 /* EncryptionService.swift */; };
+		A10000010002000000000013 /* ErrorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000014 /* ErrorService.swift */; };
+		A10000010002000000000015 /* MigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000016 /* MigrationService.swift */; };
+		A10000010002000000000017 /* Date+ISO8601.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000010002000000000018 /* Date+ISO8601.swift */; };
+		A10000010002000000000019 /* AddTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000200000000001A /* AddTransactionView.swift */; };
+		A1000001000200000000001B /* TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001000200000000001C /* TransactionListView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A10000010002000000000002 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		A10000010002000000000004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContentView.swift; sourceTree = "<group>"; };
+		A10000010002000000000006 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Transaction.swift; sourceTree = "<group>"; };
+		A10000010002000000000008 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Category.swift; sourceTree = "<group>"; };
+		A1000001000200000000000A /* Budget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Budget.swift; sourceTree = "<group>"; };
+		A1000001000200000000000C /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Tag.swift; sourceTree = "<group>"; };
+		A1000001000200000000000E /* Ledger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/Ledger.swift; sourceTree = "<group>"; };
+		A10000010002000000000010 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/DataService.swift; sourceTree = "<group>"; };
+		A10000010002000000000012 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/EncryptionService.swift; sourceTree = "<group>"; };
+		A10000010002000000000014 /* ErrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ErrorService.swift; sourceTree = "<group>"; };
+		A10000010002000000000016 /* MigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MigrationService.swift; sourceTree = "<group>"; };
+		A10000010002000000000018 /* Date+ISO8601.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions/Date+ISO8601.swift; sourceTree = "<group>"; };
+		A1000001000200000000001A /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AddTransactionView.swift; sourceTree = "<group>"; };
+		A1000001000200000000001C /* TransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/TransactionListView.swift; sourceTree = "<group>"; };
+		A1000001000200000000001D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1000001000200000000001E /* SimpleAccounting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleAccounting.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1000001000200000000001F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000010002000000000020 = {
+			isa = PBXGroup;
+			children = (
+				A10000010002000000000002 /* App.swift */,
+				A10000010002000000000004 /* ContentView.swift */,
+				A10000010002000000000006 /* Transaction.swift */,
+				A10000010002000000000008 /* Category.swift */,
+				A1000001000200000000000A /* Budget.swift */,
+				A1000001000200000000000C /* Tag.swift */,
+				A1000001000200000000000E /* Ledger.swift */,
+				A10000010002000000000010 /* DataService.swift */,
+				A10000010002000000000012 /* EncryptionService.swift */,
+				A10000010002000000000014 /* ErrorService.swift */,
+				A10000010002000000000016 /* MigrationService.swift */,
+				A10000010002000000000018 /* Date+ISO8601.swift */,
+				A1000001000200000000001A /* AddTransactionView.swift */,
+				A1000001000200000000001C /* TransactionListView.swift */,
+				A1000001000200000000001D /* Info.plist */,
+				A10000010002000000000021 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000010002000000000021 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001000200000000001E /* SimpleAccounting.app */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A10000010002000000000022 /* SimpleAccounting */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000010002000000000023 /* Build configuration list for PBXNativeTarget "SimpleAccounting" */;
+			buildPhases = (
+				A10000010002000000000024 /* Sources */,
+				A1000001000200000000001F /* Frameworks */,
+				A10000010002000000000025 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimpleAccounting;
+			productName = SimpleAccounting;
+			productReference = A1000001000200000000001E /* SimpleAccounting.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000010002000000000026 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				ORGANIZATIONNAME = "";
+				TargetAttributes = {
+					A10000010002000000000022 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A10000010002000000000027 /* Build configuration list for PBXProject "SimpleAccounting" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				English,
+			);
+			mainGroup = A10000010002000000000020;
+			productRefGroup = A10000010002000000000021 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000010002000000000022 /* SimpleAccounting */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000010002000000000025 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000010002000000000024 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010002000000000001 /* App.swift in Sources */,
+				A10000010002000000000003 /* ContentView.swift in Sources */,
+				A10000010002000000000005 /* Transaction.swift in Sources */,
+				A10000010002000000000007 /* Category.swift in Sources */,
+				A10000010002000000000009 /* Budget.swift in Sources */,
+				A1000001000200000000000B /* Tag.swift in Sources */,
+				A1000001000200000000000D /* Ledger.swift in Sources */,
+				A1000001000200000000000F /* DataService.swift in Sources */,
+				A10000010002000000000011 /* EncryptionService.swift in Sources */,
+				A10000010002000000000013 /* ErrorService.swift in Sources */,
+				A10000010002000000000015 /* MigrationService.swift in Sources */,
+				A10000010002000000000017 /* Date+ISO8601.swift in Sources */,
+				A10000010002000000000019 /* AddTransactionView.swift in Sources */,
+				A1000001000200000000001B /* TransactionListView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A10000010002000000000028 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.daianding.SimpleAccounting;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A10000010002000000000029 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.SimpleAccounting;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A1000001000200000000002A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		A1000001000200000000002B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10000010002000000000023 /* Build configuration list for PBXNativeTarget "SimpleAccounting" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000010002000000000028 /* Debug */,
+				A10000010002000000000029 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000010002000000000027 /* Build configuration list for PBXProject "SimpleAccounting" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000001000200000000002A /* Debug */,
+				A1000001000200000000002B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = A10000010002000000000026 /* Project object */;
+}
