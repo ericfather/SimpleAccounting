@@ -25,22 +25,22 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A1200001000020000000000002 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
-		A1200001000020000000000004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A1200001000020000000000006 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
-		A1200001000020000000000008 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
-		A120000100002000000000000A /* Budget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Budget.swift; sourceTree = "<group>"; };
-		A120000100002000000000000C /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
-		A120000100002000000000000E /* Ledger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ledger.swift; sourceTree = "<group>"; };
-		A1200001000020000000000010 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
-		A1200001000020000000000012 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
-		A1200001000020000000000014 /* ErrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorService.swift; sourceTree = "<group>"; };
-		A1200001000020000000000016 /* MigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationService.swift; sourceTree = "<group>"; };
+		A1200001000020000000000002 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/App.swift; sourceTree = "<group>"; };
+		A1200001000020000000000004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/ContentView.swift; sourceTree = "<group>"; };
+		A1200001000020000000000006 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/Transaction.swift; sourceTree = "<group>"; };
+		A1200001000020000000000008 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/Category.swift; sourceTree = "<group>"; };
+		A120000100002000000000000A /* Budget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/Budget.swift; sourceTree = "<group>"; };
+		A120000100002000000000000C /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/Tag.swift; sourceTree = "<group>"; };
+		A120000100002000000000000E /* Ledger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/Ledger.swift; sourceTree = "<group>"; };
+		A1200001000020000000000010 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/DataService.swift; sourceTree = "<group>"; };
+		A1200001000020000000000012 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/EncryptionService.swift; sourceTree = "<group>"; };
+		A1200001000020000000000014 /* ErrorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/ErrorService.swift; sourceTree = "<group>"; };
+		A1200001000020000000000016 /* MigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/MigrationService.swift; sourceTree = "<group>"; };
 		A1200001000020000000000018 /* Date+ISO8601.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+ISO8601.swift"; sourceTree = "<group>"; };
-		A120000100002000000000001A /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionView.swift; sourceTree = "<group>"; };
-		A120000100002000000000001C /* TransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionListView.swift; sourceTree = "<group>"; };
-		A120000100002000000000001E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A120000100002000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A120000100002000000000001A /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/AddTransactionView.swift; sourceTree = "<group>"; };
+		A120000100002000000000001C /* TransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/TransactionListView.swift; sourceTree = "<group>"; };
+		A120000100002000000000001E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = SimpleAccounting/Assets.xcassets; sourceTree = "<group>"; };
+		A120000100002000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = SimpleAccounting/Info.plist; sourceTree = "<group>"; };
 		A1200001000020000000000020 /* SimpleAccounting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleAccounting.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
