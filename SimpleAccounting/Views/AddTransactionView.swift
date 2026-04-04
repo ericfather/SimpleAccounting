@@ -215,7 +215,7 @@ struct AddTransactionView: View {
     }
 
     private func saveTransaction() {
-        guard !amount.isEmpty else {
+        if amount.isEmpty {
             errorMessage = "请输入金额"
             showError = true
             return
@@ -227,25 +227,25 @@ struct AddTransactionView: View {
             return
         }
 
-        guard amountDouble > 0 else {
+        if amountDouble <= 0 {
             errorMessage = "金额必须大于0"
             showError = true
             return
         }
 
-        guard amountDouble <= 999999999.99 else {
+        if amountDouble > 999999999.99 {
             errorMessage = "金额不能超过999,999,999.99"
             showError = true
             return
         }
 
-        guard selectedCategory != nil else {
+        guard let category = selectedCategory else {
             errorMessage = "请选择分类"
             showError = true
             return
         }
 
-        guard defaultLedger != nil else {
+        guard let ledger = defaultLedger else {
             errorMessage = "账本数据异常，请重启应用"
             showError = true
             return
@@ -256,8 +256,8 @@ struct AddTransactionView: View {
         let transaction = Transaction(
             amount: finalAmount,
             type: transactionType,
-            category: selectedCategory,
-            ledger: defaultLedger,
+            category: category,
+            ledger: ledger,
             note: note,
             date: date,
             location: location.isEmpty ? nil : location
