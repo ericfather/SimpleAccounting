@@ -49,7 +49,7 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
-      - name: Diagnose compilation
+    - name: Diagnose compilation
       run: |
         echo "=== Checking PBXSourcesBuildPhase content ==="
         sed -n '/\/\* Begin PBXSourcesBuildPhase section \*\//,/\/\* End PBXSourcesBuildPhase section \*\//p' SimpleAccounting.xcodeproj/project.pbxproj
