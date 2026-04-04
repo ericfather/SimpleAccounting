@@ -47,10 +47,10 @@ class ErrorService {
 extension View {
     func errorHandler(_ error: Binding<Error?>) -> some View {
         self.alert(isPresented: .constant(error.wrappedValue != nil)) {
-            if let error = error.wrappedValue {
+            if let currentError = error.wrappedValue {
                 return Alert(
                     title: Text("错误"),
-                    message: Text(ErrorService.shared.getErrorMessage(error)),
+                    message: Text(ErrorService.shared.getErrorMessage(currentError)),
                     dismissButton: .default(Text("确定")) {
                         error.wrappedValue = nil
                     }

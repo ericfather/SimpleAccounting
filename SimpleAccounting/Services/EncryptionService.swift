@@ -53,12 +53,12 @@ class EncryptionService {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
             kSecAttrAccount as String: encryptionKeyTag,
-            kSecReturnData as String: kCFBooleanTrue!
+            kSecReturnData as String: true as CFBoolean
         ]
-        
+
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
-        
+
         if status == errSecSuccess {
             return result as? Data
         } else if status == errSecItemNotFound {
@@ -79,7 +79,9 @@ class EncryptionService {
     }
     
     func encryptString(_ string: String) throws -> String {
-        let data = string.data(using: .utf8)! // 强制解包，因为字符串总是可以转换为数据
+        guard let data = string.data(using: .utf8) else {
+            throw EncryptionError.invalidData
+        }
         let encryptedData = try encrypt(data: data)
         return encryptedData.base64EncodedString()
     }
@@ -142,7 +144,7 @@ struct AESGCM {
             
             // 组合IV、密文和认证标签
             var result = Data()
-            result.append(iv)
+            result.append(iv.withUnsafeBytes { Data($0) })
             result.append(sealedBox.ciphertext)
             result.append(sealedBox.tag)
             
@@ -158,15 +160,17 @@ struct AESGCM {
             throw EncryptionError.decryptionFailed
         }
         
+        let nonceByteCount = 12
+        
         // 确保数据长度足够
-        guard data.count >= AES.GCM.Nonce.byteCount + 16 else {
+        guard data.count >= nonceByteCount + 16 else {
             throw EncryptionError.invalidData
         }
         
         do {
             // 提取IV、密文和认证标签
-            let iv = AES.GCM.Nonce(data: data.prefix(AES.GCM.Nonce.byteCount))
-            let ciphertext = data.subdata(in: AES.GCM.Nonce.byteCount..<(data.count - 16))
+            let iv = try AES.GCM.Nonce(data: data.prefix(nonceByteCount))
+            let ciphertext = data.subdata(in: nonceByteCount..<(data.count - 16))
             let tag = data.suffix(16)
             
             // 创建对称密钥

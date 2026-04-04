@@ -1,15 +1,14 @@
 import SwiftUI
 import SwiftData
 
-struct AddTransactionView: View {
+struct EditTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @Query private var ledgers: [Ledger]
-    @Query(sort: \Category.sortOrder) private var allCategories: [Category]
+    let transaction: Transaction
 
     // 交易类型
-    @State private var transactionType: String = "expense" // "income" or "expense"
+    @State private var transactionType: String = "expense"
     // 金额
     @State private var amount: String = ""
     // 分类
@@ -23,23 +22,6 @@ struct AddTransactionView: View {
     // 错误提示
     @State private var showError = false
     @State private var errorMessage = ""
-
-    // 快捷金额选项
-    private let quickAmounts: [Double] = [10, 20, 50, 100, 200, 500]
-
-    private var defaultLedger: Ledger? {
-        ledgers.first(where: { $0.name == "默认账本" }) ?? ledgers.first
-    }
-
-    // 根据类型过滤分类
-    private var filteredCategories: [Category] {
-        allCategories.filter { $0.type == transactionType }
-    }
-
-    // 快捷分类（显示前6个）
-    private var quickCategories: [Category] {
-        Array(filteredCategories.prefix(6))
-    }
 
     var body: some View {
         NavigationStack {
@@ -68,9 +50,6 @@ struct AddTransactionView: View {
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(8)
-
-                            // 快捷金额按钮
-                            QuickAmountGrid(amount: $amount, amounts: quickAmounts)
 
                             // 分类选择
                             NavigationLink {
@@ -141,21 +120,10 @@ struct AddTransactionView: View {
                                 .keyboardType(.decimalPad)
                                 .font(.largeTitle)
                                 .foregroundColor(transactionType == "income" ? .green : .red)
-
-                            // 快捷金额按钮
-                            QuickAmountGrid(amount: $amount, amounts: quickAmounts)
                         }
 
-                        // 快捷分类网格
+                        // 分类选择
                         Section {
-                            if !quickCategories.isEmpty {
-                                QuickCategoryGrid(
-                                    categories: quickCategories,
-                                    selectedCategory: $selectedCategory,
-                                    transactionType: transactionType
-                                )
-                            }
-
                             NavigationLink {
                                 CategorySelectionView(selectedCategory: $selectedCategory, categoryType: transactionType)
                             } label: {
@@ -192,7 +160,7 @@ struct AddTransactionView: View {
                     }
                 }
             }
-            .navigationTitle(transactionType == "income" ? "记收入" : "记支出")
+            .navigationTitle("编辑记录")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -202,7 +170,7 @@ struct AddTransactionView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("保存") {
-                        saveTransaction()
+                        updateTransaction()
                     }
                 }
             }
@@ -211,10 +179,22 @@ struct AddTransactionView: View {
             } message: {
                 Text(errorMessage)
             }
+            .onAppear {
+                loadTransactionData()
+            }
         }
     }
 
-    private func saveTransaction() {
+    private func loadTransactionData() {
+        transactionType = transaction.type
+        amount = String(format: "%.2f", transaction.amount)
+        selectedCategory = transaction.category
+        date = transaction.date
+        note = transaction.note
+        location = transaction.location ?? ""
+    }
+
+    private func updateTransaction() {
         guard !amount.isEmpty else {
             errorMessage = "请输入金额"
             showError = true
@@ -239,31 +219,15 @@ struct AddTransactionView: View {
             return
         }
 
-        guard selectedCategory != nil else {
-            errorMessage = "请选择分类"
-            showError = true
-            return
-        }
-
-        guard defaultLedger != nil else {
-            errorMessage = "账本数据异常，请重启应用"
-            showError = true
-            return
-        }
-
         let finalAmount = round(amountDouble * 100) / 100
 
-        let transaction = Transaction(
-            amount: finalAmount,
-            type: transactionType,
-            category: selectedCategory,
-            ledger: defaultLedger,
-            note: note,
-            date: date,
-            location: location.isEmpty ? nil : location
-        )
-
-        modelContext.insert(transaction)
+        transaction.amount = finalAmount
+        transaction.type = transactionType
+        transaction.category = selectedCategory
+        transaction.note = note
+        transaction.date = date
+        transaction.location = location.isEmpty ? nil : location
+        transaction.updatedAt = Date()
 
         do {
             try modelContext.save()
@@ -275,156 +239,18 @@ struct AddTransactionView: View {
     }
 }
 
-// 快捷金额网格组件
-struct QuickAmountGrid: View {
-    @Binding var amount: String
-    let amounts: [Double]
+#Preview {
+    let schema = Schema([
+        Transaction.self,
+        Category.self,
+        Ledger.self,
+        Tag.self,
+        Budget.self
+    ])
+    let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: schema, configurations: configuration)
 
-    var body: some View {
-        HStack(spacing: 10) {
-            ForEach(amounts, id: \.self) { quickAmount in
-                Button(action: {
-                    if amount.isEmpty {
-                        amount = String(format: "%.0f", quickAmount)
-                    } else if let existingAmount = Double(amount) {
-                        amount = String(format: "%.2f", existingAmount + quickAmount)
-                    }
-                }) {
-                    Text("+\(Int(quickAmount))")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.blue)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.1))
-                        .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-}
-
-// 快捷分类网格组件
-struct QuickCategoryGrid: View {
-    let categories: [Category]
-    @Binding var selectedCategory: Category
-    let transactionType: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("快捷分类")
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 10) {
-                ForEach(categories) { category in
-                    Button(action: {
-                        selectedCategory = category
-                    }) {
-                        VStack(spacing: 4) {
-                            Image(systemName: category.icon)
-                                .font(.title3)
-                                .foregroundColor(Color(hex: category.color))
-
-                            Text(category.name)
-                                .font(.caption2)
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            selectedCategory?.id == category.id
-                                ? Color(hex: category.color).opacity(0.2)
-                                : Color(.systemGray6)
-                        )
-                        .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(
-                                    selectedCategory?.id == category.id
-                                        ? Color(hex: category.color)
-                                        : Color.clear,
-                                    lineWidth: 2
-                                )
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-}
-
-// 分类选择视图
-struct CategorySelectionView: View {
-    @Binding var selectedCategory: Category?
-    let categoryType: String
-    @Environment(\.dismiss) private var dismiss
-    @Query private var categories: [Category]
-
-    init(selectedCategory: Binding<Category?>, categoryType: String) {
-        self._selectedCategory = selectedCategory
-        self.categoryType = categoryType
-    }
-
-    var filteredCategories: [Category] {
-        categories.filter { $0.type == categoryType }
-    }
-    
-    var body: some View {
-        List {
-            if filteredCategories.isEmpty {
-                Text("暂无可用分类，请先添加分类")
-                    .foregroundColor(.secondary)
-                    .listRowBackground(Color.clear)
-            } else {
-                ForEach(filteredCategories) { category in
-                    Button {
-                        selectedCategory = category
-                        dismiss()
-                    } label: {
-                        HStack {
-                            Image(systemName: category.icon)
-                                .foregroundColor(Color(hex: category.color))
-                                .frame(width: 30, height: 30)
-                                .background(Color(hex: category.color).opacity(0.1))
-                                .cornerRadius(15)
-                            Text(category.name)
-                            Spacer()
-                            if selectedCategory?.id == category.id {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .navigationTitle("选择分类")
-    }
-}
-
-// 颜色扩展
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        guard hex.count == 6 else {
-            self.init(.gray)
-            return
-        }
-        var rgbValue: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&rgbValue)
-
-        let r = Double((rgbValue & 0xFF0000) >> 16) / 255.0
-        let g = Double((rgbValue & 0x00FF00) >> 8) / 255.0
-        let b = Double(rgbValue & 0x0000FF) / 255.0
-
-        self.init(red: r, green: g, blue: b)
-    }
+    let transaction = Transaction(amount: 100, type: "expense", note: "测试", date: Date())
+    return EditTransactionView(transaction: transaction)
+        .modelContainer(container)
 }

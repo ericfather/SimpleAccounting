@@ -82,12 +82,12 @@ class DataService {
             let budgets = try modelContext.fetch(FetchDescriptor<Budget>())
             
             // 创建导出数据结构
-            let exportData = [
-                "transactions": transactions,
-                "categories": categories,
-                "ledgers": ledgers,
-                "tags": tags,
-                "budgets": budgets
+            let exportData: [String: Any] = [
+                "transactions": transactions.map { $0.toDictionary() },
+                "categories": categories.map { $0.toDictionary() },
+                "ledgers": ledgers.map { $0.toDictionary() },
+                "tags": tags.map { $0.toDictionary() },
+                "budgets": budgets.map { $0.toDictionary() }
             ]
             
             // 序列化为JSON
@@ -168,13 +168,17 @@ class DataService {
             
             // 导入交易记录
             if let transactionsData = json["transactions"] as? [[String: Any]] {
+                let ledgers = try modelContext.fetch(FetchDescriptor<Ledger>())
+                let defaultLedger = ledgers.first(where: { $0.name == "默认账本" }) ?? ledgers.first
+
                 for transactionDict in transactionsData {
                     let transaction = Transaction(
                         amount: transactionDict["amount"] as? Double ?? 0,
                         type: transactionDict["type"] as? String ?? "expense",
                         note: transactionDict["note"] as? String ?? "",
                         date: Date(timeIntervalSince1970: transactionDict["date"] as? TimeInterval ?? 0),
-                        location: transactionDict["location"] as? String
+                        location: transactionDict["location"] as? String,
+                        ledger: defaultLedger
                     )
                     modelContext.insert(transaction)
                 }
@@ -244,10 +248,28 @@ class DataService {
         modelContext.delete(transaction)
         try modelContext.save()
     }
+
+    func deleteTransaction(id: UUID) throws {
+        guard let modelContext = modelContext else { throw DataError.noContext }
+        let descriptor = FetchDescriptor<Transaction>(predicate: #Predicate { $0.id == id })
+        if let transaction = try modelContext.fetch(descriptor).first {
+            modelContext.delete(transaction)
+            try modelContext.save()
+        }
+    }
     
     func getTransactions() throws -> [Transaction] {
         guard let modelContext = modelContext else { throw DataError.noContext }
         let descriptor = FetchDescriptor<Transaction>(sortBy: [SortDescriptor<Transaction>(\.date, order: .reverse)])
+        return try modelContext.fetch(descriptor)
+    }
+    
+    func getTransactions(page: Int, pageSize: Int) throws -> [Transaction] {
+        guard let modelContext = modelContext else { throw DataError.noContext }
+        guard page > 0 else { throw DataError.fetchFailed }
+        var descriptor = FetchDescriptor<Transaction>(sortBy: [SortDescriptor<Transaction>(\.date, order: .reverse)])
+        descriptor.fetchLimit = pageSize
+        descriptor.fetchOffset = (page - 1) * pageSize
         return try modelContext.fetch(descriptor)
     }
     
@@ -349,13 +371,56 @@ class DataService {
         let descriptor = FetchDescriptor<Budget>(sortBy: [SortDescriptor<Budget>(\.startDate, order: .reverse)])
         return try modelContext.fetch(descriptor)
     }
+
+    // CSV导出方法
+    func exportDataAsCSV() throws -> String {
+        guard let modelContext = modelContext else { throw DataError.noContext }
+
+        let transactions = try modelContext.fetch(FetchDescriptor<Transaction>(sortBy: [SortDescriptor<Transaction>(\.date, order: .reverse)]))
+
+        var csvContent = "日期,类型,分类,金额,位置,备注\n"
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.locale = Locale(identifier: "zh_CN")
+
+        for transaction in transactions {
+            let dateString = dateFormatter.string(from: transaction.date)
+            let typeString = transaction.type == "income" ? "收入" : "支出"
+            let categoryName = transaction.category?.name ?? "未分类"
+            let amountString = String(format: "%.2f", transaction.amount)
+            let locationString = transaction.location ?? ""
+            let noteString = transaction.note.replacingOccurrences(of: ",", with: ";").replacingOccurrences(of: "\n", with: " ")
+
+            csvContent += "\"\(dateString)\",\"\(typeString)\",\"\(categoryName)\",\(amountString),\"\(locationString)\",\"\(noteString)\"\n"
+        }
+
+        return csvContent
+    }
 }
 
-enum DataError: Error {
+enum DataError: Error, LocalizedError {
     case noContext
     case saveFailed
     case fetchFailed
     case exportFailed(Error)
     case importFailed(String)
     case clearFailed(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .noContext:
+            return "数据上下文未初始化"
+        case .saveFailed:
+            return "保存数据失败"
+        case .fetchFailed:
+            return "获取数据失败"
+        case .exportFailed(let error):
+            return "导出数据失败: \(error.localizedDescription)"
+        case .importFailed(let message):
+            return "导入数据失败: \(message)"
+        case .clearFailed(let error):
+            return "清空数据失败: \(error.localizedDescription)"
+        }
+    }
 }
