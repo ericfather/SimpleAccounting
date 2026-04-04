@@ -42,7 +42,14 @@ jobs:
         if [ "$COMPILE_COUNT" -eq 0 ]; then
           echo "Warning: No Swift files were compiled"
         fi
-
+    - name: Show build log errors/warnings
+      run: |
+        echo "=== First 50 lines of build.log ==="
+        head -50 build.log
+        echo "=== Swift compilation lines ==="
+        grep "CompileSwift" build.log | head -20
+        echo "=== Errors and warnings ==="
+        grep -E "error:|warning:" build.log | head -20
     - name: Package .app to .ipa
       run: |
         APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
