@@ -47,6 +47,8 @@ struct ContentView: View {
 }
 
 struct HomeView: View {
+    @State private var showAddTransaction = false
+
     var body: some View {
         NavigationStack {
             VStack {
@@ -55,7 +57,7 @@ struct HomeView: View {
                     .fontWeight(.bold)
                 Spacer()
                 Button(action: {
-                    // 跳转到记账页面
+                    showAddTransaction = true
                 }) {
                     Text("记一笔")
                         .font(.title)
@@ -69,6 +71,9 @@ struct HomeView: View {
                 Spacer()
             }
             .navigationTitle("简单记账")
+            .sheet(isPresented: $showAddTransaction) {
+                AddTransactionView()
+            }
         }
     }
 }
