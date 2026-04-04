@@ -20,50 +20,39 @@ jobs:
     - name: Generate Xcode project
       run: xcodegen generate
 
-    - name: Build for device (Release)
+    - name: Build for simulator (Debug)
       run: |
-        xcodebuild clean build \
+        xcodebuild build \
           -project SimpleAccounting.xcodeproj \
           -scheme SimpleAccounting \
-          -sdk iphoneos \
-          -configuration Release \
+          -sdk iphonesimulator \
+          -configuration Debug \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGN_STYLE=Manual \
-          PROVISIONING_PROFILE_SPECIFIER=""
+          CODE_SIGNING_ALLOWED=NO
 
-    - name: Find and verify .app
+    - name: Find simulator .app and package as .ipa
       run: |
-        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Release-iphoneos/*" -type d | head -n 1)
-        if [ -z "$APP_PATH" ]; then
-          echo "Error: No .app found for Release-iphoneos"
+        SIM_APP=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
+        if [ -z "$SIM_APP" ]; then
+          echo "Error: Simulator .app not found"
           exit 1
         fi
-        echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
-        echo "App size:"
-        du -sh "$APP_PATH"
+        echo "Simulator .app size:"
+        du -sh "$SIM_APP"
         echo "Contents:"
-        ls -la "$APP_PATH"
-        # 检查可执行文件
-        if [ -f "$APP_PATH/SimpleAccounting" ]; then
-          echo "Executable exists"
-        else
-          echo "Warning: No executable found"
-        fi
-
-    - name: Create IPA
-      run: |
+        ls -la "$SIM_APP"
         mkdir -p Payload
-        cp -R "$APP_PATH" Payload/
-        zip -r SimpleAccounting.ipa Payload
+        cp -R "$SIM_APP" Payload/
+        zip -r SimpleAccounting-simulator.ipa Payload
         rm -rf Payload
-        echo "IPA size:"
-        ls -lh SimpleAccounting.ipa
+        echo "IPA created:"
+        ls -lh SimpleAccounting-simulator.ipa
 
-    - name: Upload IPA
+    - name: Upload IPA artifact
       uses: actions/upload-artifact@v4
       with:
-        name: SimpleAccounting-IPA
-        path: SimpleAccounting.ipa
+        name: SimpleAccounting-Simulator-IPA
+        path: SimpleAccounting-simulator.ipa
         retention-days: 30
