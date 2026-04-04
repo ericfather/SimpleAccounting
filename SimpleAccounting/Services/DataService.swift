@@ -178,7 +178,8 @@ class DataService {
                         note: transactionDict["note"] as? String ?? "",
                         date: Date(timeIntervalSince1970: transactionDict["date"] as? TimeInterval ?? 0),
                         location: transactionDict["location"] as? String,
-                        ledger: defaultLedger
+                        ledger: defaultLedger,
+                        category: nil
                     )
                     modelContext.insert(transaction)
                 }
