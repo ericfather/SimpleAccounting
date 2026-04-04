@@ -308,7 +308,7 @@ struct QuickAmountGrid: View {
 // 快捷分类网格组件
 struct QuickCategoryGrid: View {
     let categories: [Category]
-    @Binding var selectedCategory: Category
+    @Binding var selectedCategory: Category?
     let transactionType: String
 
     var body: some View {
@@ -326,38 +326,35 @@ struct QuickCategoryGrid: View {
                     Button(action: {
                         selectedCategory = category
                     }) {
-                        VStack(spacing: 4) {
-                            Image(systemName: category.icon)
-                                .font(.title3)
-                                .foregroundColor(Color(hex: category.color))
-
-                            Text(category.name)
-                                .font(.caption2)
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            selectedCategory?.id == category.id
-                                ? Color(hex: category.color).opacity(0.2)
-                                : Color(.systemGray6)
-                        )
-                        .cornerRadius(10)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(
-                                    selectedCategory?.id == category.id
-                                        ? Color(hex: category.color)
-                                        : Color.clear,
-                                    lineWidth: 2
-                                )
-                        )
+                        categoryItemView(category: category)
                     }
                     .buttonStyle(.plain)
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func categoryItemView(category: Category) -> some View {
+        let isSelected = selectedCategory?.id == category.id
+        VStack(spacing: 4) {
+            Image(systemName: category.icon)
+                .font(.title3)
+                .foregroundColor(Color(hex: category.color))
+
+            Text(category.name)
+                .font(.caption2)
+                .foregroundColor(.primary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .background(isSelected ? Color(hex: category.color).opacity(0.2) : Color(.systemGray6))
+        .cornerRadius(10)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(isSelected ? Color(hex: category.color) : Color.clear, lineWidth: 2)
+        )
     }
 }
 
