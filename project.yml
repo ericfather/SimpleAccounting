@@ -1,1 +1,31 @@
-
+name: SimpleAccounting
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: 17.0
+  generateEmptyDirectories: true
+targets:
+  SimpleAccounting:
+    type: application
+    platform: iOS
+    sources:
+      - path: SimpleAccounting
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.SimpleAccounting
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: ""
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGNING_ALLOWED: NO
+        SWIFT_VERSION: 5.0
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: ""  # 自动生成
+    scheme:
+      testTargets:
+      configVariants:
+        Debug:
+          settings:
+            SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+        Release:
+          settings:
+            SWIFT_ACTIVE_COMPILATION_CONDITIONS: ""
