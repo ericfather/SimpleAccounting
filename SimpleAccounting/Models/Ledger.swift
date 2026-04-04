@@ -5,14 +5,14 @@ import SwiftData
 class Ledger {
     @Attribute(.unique) var id: UUID
     var name: String
-    var description: String
+    var ledgerDescription: String
     var createdAt: Date
     var updatedAt: Date
     
     init(name: String, description: String = "") {
         self.id = UUID()
         self.name = name
-        self.description = description
+        self.ledgerDescription = description
         self.createdAt = Date()
         self.updatedAt = Date()
     }
@@ -20,7 +20,7 @@ class Ledger {
     init(from dict: [String: Any]) {
         self.id = UUID(uuidString: dict["id"] as? String ?? UUID().uuidString) ?? UUID()
         self.name = dict["name"] as? String ?? ""
-        self.description = dict["description"] as? String ?? ""
+        self.ledgerDescription = dict["description"] as? String ?? ""
         self.createdAt = (dict["createdAt"] as? String ?? "").dateFromISO8601 ?? Date()
         self.updatedAt = (dict["updatedAt"] as? String ?? "").dateFromISO8601 ?? Date()
     }
@@ -29,7 +29,7 @@ class Ledger {
         return [
             "id": id.uuidString,
             "name": name,
-            "description": description,
+            "description": ledgerDescription,
             "createdAt": createdAt.iso8601,
             "updatedAt": updatedAt.iso8601
         ]
