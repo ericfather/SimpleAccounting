@@ -376,7 +376,7 @@ struct StatisticsView: View {
 
                         Spacer()
 
-                        Text(selectedMonth, format: .dateTime.year(.wide).month(.wide))
+                        Text(selectedMonth, format: Date.FormatStyle().year().month())
                             .font(.headline)
 
                         Spacer()
@@ -869,7 +869,7 @@ struct CategoryManagementView: View {
                     }
                 }
                 .onDelete { offsets in
-                    deleteCategories(offsets, type: "expense")
+                    deleteCategories(at: offsets, type: "expense")
                 }
             }
 
@@ -891,7 +891,7 @@ struct CategoryManagementView: View {
                     }
                 }
                 .onDelete { offsets in
-                    deleteCategories(offsets, type: "income")
+                    deleteCategories(at: offsets, type: "income")
                 }
             }
         }
