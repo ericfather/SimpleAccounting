@@ -20,7 +20,25 @@ jobs:
     - name: Generate Xcode project
       run: xcodegen generate
 
-    - name: Build for simulator (Debug)
+    - name: Verify source files in project
+      run: |
+        echo "=== Swift files in directory ==="
+        find SimpleAccounting -name "*.swift" | sort
+        echo ""
+        echo "=== Swift files in project ==="
+        grep -o '/* [^ ]*\.swift' SimpleAccounting.xcodeproj/project.pbxproj | sort | uniq
+        echo ""
+        DIR_COUNT=$(find SimpleAccounting -name "*.swift" | wc -l)
+        PROJ_COUNT=$(grep -c '\.swift in Sources' SimpleAccounting.xcodeproj/project.pbxproj || echo 0)
+        echo "Directory count: $DIR_COUNT"
+        echo "Project count: $PROJ_COUNT"
+        if [ "$DIR_COUNT" -ne "$PROJ_COUNT" ]; then
+          echo "⚠️ Warning: File count mismatch!"
+        else
+          echo "✅ All files are included in the project."
+        fi
+
+    - name: Build for simulator
       run: |
         xcodebuild build \
           -project SimpleAccounting.xcodeproj \
@@ -32,27 +50,20 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
 
-    - name: Find simulator .app and package as .ipa
+    - name: Package .app to .ipa
       run: |
-        SIM_APP=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
-        if [ -z "$SIM_APP" ]; then
-          echo "Error: Simulator .app not found"
-          exit 1
-        fi
-        echo "Simulator .app size:"
-        du -sh "$SIM_APP"
-        echo "Contents:"
-        ls -la "$SIM_APP"
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
+        echo "App size:"
+        du -sh "$APP_PATH"
         mkdir -p Payload
-        cp -R "$SIM_APP" Payload/
-        zip -r SimpleAccounting-simulator.ipa Payload
+        cp -R "$APP_PATH" Payload/
+        zip -r SimpleAccounting.ipa Payload
         rm -rf Payload
-        echo "IPA created:"
-        ls -lh SimpleAccounting-simulator.ipa
+        ls -lh SimpleAccounting.ipa
 
-    - name: Upload IPA artifact
+    - name: Upload IPA
       uses: actions/upload-artifact@v4
       with:
-        name: SimpleAccounting-Simulator-IPA
-        path: SimpleAccounting-simulator.ipa
+        name: SimpleAccounting-IPA
+        path: SimpleAccounting.ipa
         retention-days: 30
