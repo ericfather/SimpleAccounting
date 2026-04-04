@@ -55,14 +55,17 @@ jobs:
 
     - name: Prepare .app for Appetize.io
       run: |
-        # 进入 .app 所在目录，直接压缩 .app 文件夹（不包含上层路径）
-        cd $(dirname $APP_PATH)
-        zip -r SimpleAccounting_for_Appetize.zip $(basename $APP_PATH)
-        echo "ZIP created at: $(dirname $APP_PATH)/SimpleAccounting_for_Appetize.zip"
+        mkdir -p appetize_temp
+        cp -R "$APP_PATH" appetize_temp/
+        cd appetize_temp
+        zip -r ../SimpleAccounting_for_Appetize.zip .
+        cd ..
+        rm -rf appetize_temp
+        echo "ZIP created at: $(pwd)/SimpleAccounting_for_Appetize.zip"
 
     - name: Upload .app zip for Appetize.io
       uses: actions/upload-artifact@v4
       with:
         name: SimpleAccounting-for-Appetize
-        path: ${{ env.APP_PATH }}/../SimpleAccounting_for_Appetize.zip
+        path: SimpleAccounting_for_Appetize.zip
         retention-days: 30
