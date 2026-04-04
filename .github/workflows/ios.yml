@@ -10,12 +10,13 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Fix project.pbxproj
+
+    - name: Generate complete project.pbxproj
       run: |
+        mkdir -p simpleaccounting.xcodeproj
         cat > simpleaccounting.xcodeproj/project.pbxproj << 'EOF'
         // !$*UTF8*$!
         {
@@ -24,7 +25,7 @@ jobs:
         	};
         	objectVersion = 56;
         	objects = {
-        
+
         /* Begin PBXBuildFile section */
         		A1200001000020000000000001 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1200001000020000000000002 /* App.swift */; };
         		A1200001000020000000000003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1200001000020000000000004 /* ContentView.swift */; };
@@ -42,7 +43,7 @@ jobs:
         		A120000100002000000000001B /* TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A120000100002000000000001C /* TransactionListView.swift */; };
         		A120000100002000000000001D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A120000100002000000000001E /* Assets.xcassets */; };
         /* End PBXBuildFile section */
-        
+
         /* Begin PBXFileReference section */
         		A1200001000020000000000002 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/App.swift; sourceTree = "<group>"; };
         		A1200001000020000000000004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccounting/Views/ContentView.swift; sourceTree = "<group>"; };
@@ -62,7 +63,7 @@ jobs:
         		A120000100002000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = SimpleAccounting/Info.plist; sourceTree = "<group>"; };
         		A1200001000020000000000020 /* SimpleAccounting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleAccounting.app; sourceTree = BUILT_PRODUCTS_DIR; };
         /* End PBXFileReference section */
-        
+
         /* Begin PBXFrameworksBuildPhase section */
         		A1200001000020000000000021 /* Frameworks */ = {
         			isa = PBXFrameworksBuildPhase;
@@ -72,7 +73,7 @@ jobs:
         			runOnlyForDeploymentPostprocessing = 0;
         		};
         /* End PBXFrameworksBuildPhase section */
-        
+
         /* Begin PBXGroup section */
         		A1200001000020000000000022 = {
         			isa = PBXGroup;
@@ -106,7 +107,7 @@ jobs:
         			sourceTree = "<group>";
         		};
         /* End PBXGroup section */
-        
+
         /* Begin PBXNativeTarget section */
         		A1200001000020000000000024 /* SimpleAccounting */ = {
         			isa = PBXNativeTarget;
@@ -126,7 +127,7 @@ jobs:
         			productType = "com.apple.product-type.application";
         		};
         /* End PBXNativeTarget section */
-        
+
         /* Begin PBXProject section */
         		A1200001000020000000000028 /* Project object */ = {
         			isa = PBXProject;
@@ -155,7 +156,7 @@ jobs:
         			);
         		};
         /* End PBXProject section */
-        
+
         /* Begin PBXResourcesBuildPhase section */
         		A1200001000020000000000026 /* Resources */ = {
         			isa = PBXResourcesBuildPhase;
@@ -166,7 +167,7 @@ jobs:
         			runOnlyForDeploymentPostprocessing = 0;
         		};
         /* End PBXResourcesBuildPhase section */
-        
+
         /* Begin PBXSourcesBuildPhase section */
         		A1200001000020000000000025 /* Sources */ = {
         			isa = PBXSourcesBuildPhase;
@@ -190,7 +191,7 @@ jobs:
         			runOnlyForDeploymentPostprocessing = 0;
         		};
         /* End PBXSourcesBuildPhase section */
-        
+
         /* Begin XCBuildConfiguration section */
         		A120000100002000000000002A /* Debug */ = {
         			isa = XCBuildConfiguration;
@@ -366,7 +367,7 @@ jobs:
         			name = Release;
         		};
         /* End XCBuildConfiguration section */
-        
+
         /* Begin XCConfigurationList section */
         		A1200001000020000000000027 /* Build configuration list for PBXNativeTarget "SimpleAccounting" */ = {
         			isa = XCConfigurationList;
@@ -391,8 +392,11 @@ jobs:
         	rootObject = A1200001000020000000000028 /* Project object */;
         }
         EOF
-    
-    - name: Build iOS app
+        
+        echo "✅ project.pbxproj generated successfully"
+        ls -la simpleaccounting.xcodeproj/
+
+    - name: Build iOS app for simulator
       run: |
         xcodebuild build \
           -project simpleaccounting.xcodeproj \
@@ -402,10 +406,10 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
-    
-    - name: Upload IPA
+
+    - name: Upload app (optional)
       uses: actions/upload-artifact@v4
       with:
-        name: SimpleAccounting
+        name: SimpleAccounting-app
         path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/**/*.app
         retention-days: 7
