@@ -82,7 +82,7 @@ class DataService {
             let budgets = try modelContext.fetch(FetchDescriptor<Budget>())
             
             // 创建导出数据结构
-            let exportData = [
+            let exportData: [String: Any] = [
                 "transactions": transactions,
                 "categories": categories,
                 "ledgers": ledgers,
@@ -251,6 +251,14 @@ class DataService {
         return try modelContext.fetch(descriptor)
     }
     
+    func getTransactions(page: Int, pageSize: Int) throws -> [Transaction] {
+        guard let modelContext = modelContext else { throw DataError.noContext }
+        var descriptor = FetchDescriptor<Transaction>(sortBy: [SortDescriptor<Transaction>(\.date, order: .reverse)])
+        descriptor.fetchLimit = pageSize
+        descriptor.fetchOffset = (page - 1) * pageSize
+        return try modelContext.fetch(descriptor)
+    }
+    
     // 分类相关方法
     func addCategory(_ category: Category) throws {
         guard let modelContext = modelContext else { throw DataError.noContext }
@@ -351,11 +359,28 @@ class DataService {
     }
 }
 
-enum DataError: Error {
+enum DataError: Error, LocalizedError {
     case noContext
     case saveFailed
     case fetchFailed
     case exportFailed(Error)
     case importFailed(String)
     case clearFailed(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .noContext:
+            return "数据上下文未初始化"
+        case .saveFailed:
+            return "保存数据失败"
+        case .fetchFailed:
+            return "获取数据失败"
+        case .exportFailed(let error):
+            return "导出数据失败: \(error.localizedDescription)"
+        case .importFailed(let message):
+            return "导入数据失败: \(message)"
+        case .clearFailed(let error):
+            return "清空数据失败: \(error.localizedDescription)"
+        }
+    }
 }
