@@ -17,20 +17,20 @@ jobs:
     - name: Fix project.pbxproj
       run: |
         cat > simpleaccounting.xcodeproj/project.pbxproj << 'EOF'
-// !$*UTF8*$!
-{
-    archiveVersion = 1;
-    classes = {
-    };
-    objectVersion = 56;
-    objects = {
-/* Begin PBXBuildFile section */
-        A1200001000020000000000001 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1200001000020000000000002 /* App.swift */; };
-/* End PBXBuildFile section */
-    };
-    rootObject = A1200001000020000000000028 /* Project object */;
-}
-EOF
+        // !$*UTF8*$!
+        {
+        	archiveVersion = 1;
+        	classes = {
+        	};
+        	objectVersion = 56;
+        	objects = {
+        /* Begin PBXBuildFile section */
+        		A1200001000020000000000001 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1200001000020000000000002 /* App.swift */; };
+        /* End PBXBuildFile section */
+        	};
+        	rootObject = A1200001000020000000000028 /* Project object */;
+        }
+        EOF
     
     - name: Build
       run: |
