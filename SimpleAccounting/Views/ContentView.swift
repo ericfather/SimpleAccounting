@@ -7,8 +7,6 @@ struct ContentView: View {
     @State private var dataService = DataService.shared
 
     var body: some View {
-        // 临时测试用
-let _ = (0..<10000).map { "\($0)" }
         TabView(selection: $selectedTab) {
             HomeView()
                 .tabItem {
