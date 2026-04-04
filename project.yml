@@ -18,10 +18,9 @@ targets:
         CODE_SIGNING_REQUIRED: NO
         CODE_SIGNING_ALLOWED: NO
         SWIFT_VERSION: 5.0
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_FILE: ""  # 自动生成
+        INFOPLIST_FILE: SimpleAccounting/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
     scheme:
-      testTargets:
       configVariants:
         Debug:
           settings:
