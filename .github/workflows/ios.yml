@@ -21,7 +21,14 @@ jobs:
       run: |
         rm -rf SimpleAccounting.xcodeproj
         xcodegen generate
-
+    - name: Debug XcodeGen output
+      run: |
+        echo "=== project.pbxproj sections ==="
+        grep -E "(PBXSourcesBuildPhase|PBXResourcesBuildPhase)" SimpleAccounting.xcodeproj/project.pbxproj -A 10
+        echo ""
+        echo "=== Files referenced in PBXBuildFile ==="
+        grep "\.swift in Sources" SimpleAccounting.xcodeproj/project.pbxproj | wc -l
+        echo "Swift files count in sources phase"
     - name: Clean and build for simulator
       run: |
         rm -rf ~/Library/Developer/Xcode/DerivedData/*
