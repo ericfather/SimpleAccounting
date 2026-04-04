@@ -22,37 +22,43 @@ jobs:
         rm -rf SimpleAccounting.xcodeproj
         xcodegen generate
 
-    - name: Clean and build
+    - name: Clean and build for simulator
       run: |
         rm -rf ~/Library/Developer/Xcode/DerivedData/*
         xcodebuild build \
           -project SimpleAccounting.xcodeproj \
           -scheme SimpleAccounting \
           -sdk iphonesimulator \
-          -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+          -destination 'generic/platform=iOS Simulator' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
-          
+          CODE_SIGNING_ALLOWED=NO \
+          -verbose 2>&1 | tee build.log
+
     - name: Check compilation
       run: |
-        grep -c "CompileSwift" build.log || echo "0"
+        COMPILE_COUNT=$(grep -c "CompileSwift" build.log || echo "0")
+        echo "Compiled Swift files count: $COMPILE_COUNT"
+        if [ "$COMPILE_COUNT" -eq 0 ]; then
+          echo "Warning: No Swift files were compiled"
+        fi
 
     - name: Package .app to .ipa
       run: |
         APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
         if [ -z "$APP_PATH" ]; then
-          echo "App not found"
+          echo "Error: .app not found"
           exit 1
         fi
+        echo "App size:"
+        du -sh "$APP_PATH"
         mkdir -p Payload
         cp -R "$APP_PATH" Payload/
         zip -r SimpleAccounting.ipa Payload
         rm -rf Payload
         ls -lh SimpleAccounting.ipa
 
-    - name: Upload IPA
+    - name: Upload IPA artifact
       uses: actions/upload-artifact@v4
       with:
         name: SimpleAccounting-IPA
