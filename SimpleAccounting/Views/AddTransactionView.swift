@@ -17,10 +17,7 @@ struct AddTransactionView: View {
     @State private var note: String = ""
     // 位置
     @State private var location: String = ""
-    
-    // 分类列表
-    @Query private var categories: [Category]
-    
+
     var body: some View {
         NavigationStack {
             GeometryReader {
@@ -224,9 +221,13 @@ struct CategorySelectionView: View {
     @Binding var selectedCategory: Category?
     let categoryType: String
     @Environment(\.dismiss) private var dismiss
-    
     @Query private var categories: [Category]
-    
+
+    init(selectedCategory: Binding<Category?>, categoryType: String) {
+        self._selectedCategory = selectedCategory
+        self.categoryType = categoryType
+    }
+
     var filteredCategories: [Category] {
         categories.filter { $0.type == categoryType }
     }
