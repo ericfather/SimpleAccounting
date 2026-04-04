@@ -142,7 +142,7 @@ struct AESGCM {
             
             // 组合IV、密文和认证标签
             var result = Data()
-            result.append(iv)
+            result.append(iv.withUnsafeBytes { Data($0) })
             result.append(sealedBox.ciphertext)
             result.append(sealedBox.tag)
             
@@ -158,15 +158,17 @@ struct AESGCM {
             throw EncryptionError.decryptionFailed
         }
         
+        let nonceByteCount = 12
+        
         // 确保数据长度足够
-        guard data.count >= AES.GCM.Nonce.byteCount + 16 else {
+        guard data.count >= nonceByteCount + 16 else {
             throw EncryptionError.invalidData
         }
         
         do {
             // 提取IV、密文和认证标签
-            let iv = AES.GCM.Nonce(data: data.prefix(AES.GCM.Nonce.byteCount))
-            let ciphertext = data.subdata(in: AES.GCM.Nonce.byteCount..<(data.count - 16))
+            let iv = try AES.GCM.Nonce(data: data.prefix(nonceByteCount))
+            let ciphertext = data.subdata(in: nonceByteCount..<(data.count - 16))
             let tag = data.suffix(16)
             
             // 创建对称密钥
