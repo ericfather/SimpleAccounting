@@ -10,8 +10,8 @@ targets:
     platform: iOS
     sources:
       - path: SimpleAccounting
-        buildPhase: sources
-        createsGroup: true
+        excludes:
+          - "Info.plist"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.SimpleAccounting
@@ -22,9 +22,6 @@ targets:
         SWIFT_VERSION: 5.0
         INFOPLIST_FILE: SimpleAccounting/Info.plist
         GENERATE_INFOPLIST_FILE: NO
-        ARCHS: arm64 x86_64
-        VALID_ARCHS: arm64 x86_64
-        SUPPORTED_PLATFORMS: iphonesimulator iphoneos
     scheme:
       configVariants:
         Debug:
