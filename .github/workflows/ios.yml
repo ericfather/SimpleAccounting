@@ -49,6 +49,29 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
+      - name: Diagnose compilation
+      run: |
+        echo "=== Checking PBXSourcesBuildPhase content ==="
+        sed -n '/\/\* Begin PBXSourcesBuildPhase section \*\//,/\/\* End PBXSourcesBuildPhase section \*\//p' SimpleAccounting.xcodeproj/project.pbxproj
+        
+        echo "=== Building with detailed output ==="
+        xcodebuild build \
+          -project SimpleAccounting.xcodeproj \
+          -scheme SimpleAccounting \
+          -sdk iphonesimulator \
+          -configuration Debug \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          OTHER_SWIFT_FLAGS="-Xfrontend -debug-time-function-bodies" \
+          2>&1 | tee build.log
+        
+        echo "=== Swift files that were actually compiled ==="
+        grep "CompileSwift" build.log || echo "No CompileSwift entries found"
+        
+        echo "=== Linker output ==="
+        grep "Ld " build.log || echo "No linking step found"
     - name: Check compiled objects count
       run: |
         echo "=== PBXSourcesBuildPhase entries ==="
