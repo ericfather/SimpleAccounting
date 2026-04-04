@@ -50,7 +50,21 @@ jobs:
         find ~/Library/Developer/Xcode/DerivedData -name "*.o" | grep SimpleAccounting | wc -l
         echo "=== First few object files ==="
         find ~/Library/Developer/Xcode/DerivedData -name "*.o" | grep SimpleAccounting | head -10
-
+    - name: Analyze executable
+      run: |
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
+        if [ -f "$APP_PATH/SimpleAccounting" ]; then
+          echo "=== Executable size ==="
+          ls -lh "$APP_PATH/SimpleAccounting"
+          echo "=== Load commands (size of __TEXT segment) ==="
+          otool -l "$APP_PATH/SimpleAccounting" | grep -A 4 "segname __TEXT" | grep "size"
+          echo "=== Symbol table size ==="
+          size -m "$APP_PATH/SimpleAccounting"
+          echo "=== Check if executable is stripped ==="
+          file "$APP_PATH/SimpleAccounting"
+        else
+          echo "Executable not found"
+        fi
     - name: Check compilation
       run: |
         COMPILE_COUNT=$(grep -c "CompileSwift" build.log || echo "0")
