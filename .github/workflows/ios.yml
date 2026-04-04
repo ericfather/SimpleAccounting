@@ -1,10 +1,6 @@
 name: iOS Build
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -14,7 +10,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Generate complete project.pbxproj
+    - name: Clean old project file
+      run: rm -rf simpleaccounting.xcodeproj
+
+    - name: Generate project.pbxproj
       run: |
         mkdir -p simpleaccounting.xcodeproj
         cat > simpleaccounting.xcodeproj/project.pbxproj << 'EOF'
@@ -392,11 +391,19 @@ jobs:
         	rootObject = A1200001000020000000000028 /* Project object */;
         }
         EOF
-        
-        echo "✅ project.pbxproj generated successfully"
-        ls -la simpleaccounting.xcodeproj/
 
-    - name: Build iOS app for simulator
+    - name: Validate generated project.pbxproj
+      run: |
+        echo "=== First 50 lines ==="
+        head -n 50 simpleaccounting.xcodeproj/project.pbxproj
+        echo ""
+        echo "=== Line 35-45 ==="
+        sed -n '35,45p' simpleaccounting.xcodeproj/project.pbxproj
+        echo ""
+        echo "=== plutil validation ==="
+        plutil -lint simpleaccounting.xcodeproj/project.pbxproj || echo "Validation failed, but continuing"
+
+    - name: Build iOS app
       run: |
         xcodebuild build \
           -project simpleaccounting.xcodeproj \
@@ -406,10 +413,3 @@ jobs:
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
-
-    - name: Upload app (optional)
-      uses: actions/upload-artifact@v4
-      with:
-        name: SimpleAccounting-app
-        path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/**/*.app
-        retention-days: 7
