@@ -20,87 +20,31 @@ jobs:
     - name: Generate Xcode project
       run: xcodegen generate
 
-    - name: Verify source files in project
+    - name: Clean and build
       run: |
-        echo "=== Swift files in directory ==="
-        find SimpleAccounting -name "*.swift" | sort
-        echo ""
-        echo "=== Swift files in project ==="
-        grep -o '/* [^ ]*\.swift' SimpleAccounting.xcodeproj/project.pbxproj | sort | uniq
-        echo ""
-        DIR_COUNT=$(find SimpleAccounting -name "*.swift" | wc -l)
-        PROJ_COUNT=$(grep -c '\.swift in Sources' SimpleAccounting.xcodeproj/project.pbxproj || echo 0)
-        echo "Directory count: $DIR_COUNT"
-        echo "Project count: $PROJ_COUNT"
-        if [ "$DIR_COUNT" -ne "$PROJ_COUNT" ]; then
-          echo "⚠️ Warning: File count mismatch!"
-        else
-          echo "✅ All files are included in the project."
-        fi
+        rm -rf ~/Library/Developer/Xcode/DerivedData/*
+        xcodebuild build \
+          -project SimpleAccounting.xcodeproj \
+          -scheme SimpleAccounting \
+          -sdk iphonesimulator \
+          -configuration Debug \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          -verbose 2>&1 | tee build.log
 
-    - name: Build for simulator
+    - name: Check compilation
       run: |
-        xcodebuild build \
-          -project SimpleAccounting.xcodeproj \
-          -scheme SimpleAccounting \
-          -sdk iphonesimulator \
-          -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO
-    - name: Diagnose compilation
-      run: |
-        echo "=== Checking PBXSourcesBuildPhase content ==="
-        sed -n '/\/\* Begin PBXSourcesBuildPhase section \*\//,/\/\* End PBXSourcesBuildPhase section \*\//p' SimpleAccounting.xcodeproj/project.pbxproj
-        
-        echo "=== Building with detailed output ==="
-        xcodebuild build \
-          -project SimpleAccounting.xcodeproj \
-          -scheme SimpleAccounting \
-          -sdk iphonesimulator \
-          -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          OTHER_SWIFT_FLAGS="-Xfrontend -debug-time-function-bodies" \
-          2>&1 | tee build.log
-        
-        echo "=== Swift files that were actually compiled ==="
-        grep "CompileSwift" build.log || echo "No CompileSwift entries found"
-        
-        echo "=== Linker output ==="
-        grep "Ld " build.log || echo "No linking step found"
-    - name: Check compiled objects count
-      run: |
-        echo "=== PBXSourcesBuildPhase entries ==="
-        grep -A 500 "PBXSourcesBuildPhase" SimpleAccounting.xcodeproj/project.pbxproj | grep -c "\.swift in Sources" || echo "0"
-        
-        echo "=== Build log warnings/errors ==="
-        # 重新构建并捕获详细日志
-        xcodebuild build \
-          -project SimpleAccounting.xcodeproj \
-          -scheme SimpleAccounting \
-          -sdk iphonesimulator \
-          -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          -quiet 2>&1 | grep -E "error:|warning:" || echo "No errors/warnings"
-        
-        echo "=== Executable symbols (first 20) ==="
-        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
-        if [ -f "$APP_PATH/SimpleAccounting" ]; then
-          nm -u "$APP_PATH/SimpleAccounting" 2>/dev/null | head -20 || echo "nm not available"
-          echo "Executable size: $(ls -lh $APP_PATH/SimpleAccounting | awk '{print $5}')"
-        fi
+        grep -c "CompileSwift" build.log || echo "0"
+
     - name: Package .app to .ipa
       run: |
         APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
-        echo "App size:"
-        du -sh "$APP_PATH"
+        if [ -z "$APP_PATH" ]; then
+          echo "App not found"
+          exit 1
+        fi
         mkdir -p Payload
         cp -R "$APP_PATH" Payload/
         zip -r SimpleAccounting.ipa Payload
