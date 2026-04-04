@@ -50,12 +50,19 @@ jobs:
           exit 1
         fi
         echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
-        echo "App size:"
+        echo "App found at: $APP_PATH"
         du -sh "$APP_PATH"
 
-    - name: Upload .app artifact
+    - name: Prepare .app for Appetize.io
+      run: |
+        # 进入 .app 所在目录，直接压缩 .app 文件夹（不包含上层路径）
+        cd $(dirname $APP_PATH)
+        zip -r SimpleAccounting_for_Appetize.zip $(basename $APP_PATH)
+        echo "ZIP created at: $(dirname $APP_PATH)/SimpleAccounting_for_Appetize.zip"
+
+    - name: Upload .app zip for Appetize.io
       uses: actions/upload-artifact@v4
       with:
-        name: SimpleAccounting-app
-        path: ${{ env.APP_PATH }}
+        name: SimpleAccounting-for-Appetize
+        path: ${{ env.APP_PATH }}/../SimpleAccounting_for_Appetize.zip
         retention-days: 30
