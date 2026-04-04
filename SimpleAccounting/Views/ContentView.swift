@@ -116,20 +116,16 @@ struct SettingsView: View {
 }
 
 #Preview {
-    ContentView()
-        .modelContainer {
-            let schema = Schema([
-                Transaction.self,
-                Category.self,
-                Ledger.self,
-                Tag.self,
-                Budget.self
-            ])
-            do {
-                let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-                return try ModelContainer(for: schema, configurations: configuration)
-            } catch {
-                fatalError("无法创建模型容器: \(error)")
-            }
-        }
+    let schema = Schema([
+        Transaction.self,
+        Category.self,
+        Ledger.self,
+        Tag.self,
+        Budget.self
+    ])
+    let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: schema, configurations: configuration)
+
+    return ContentView()
+        .modelContainer(container)
 }
