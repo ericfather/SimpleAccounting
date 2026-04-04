@@ -67,11 +67,8 @@ jobs:
         fi
     - name: Check compilation
       run: |
-        COMPILE_COUNT=$(grep -c "CompileSwift" build.log || echo "0")
+        COMPILE_COUNT=$(grep -c "SwiftCompile" build.log || echo "0")
         echo "Compiled Swift files count: $COMPILE_COUNT"
-        if [ "$COMPILE_COUNT" -eq 0 ]; then
-          echo "Warning: No Swift files were compiled"
-        fi
     - name: Show build log errors/warnings
       run: |
         echo "=== First 50 lines of build.log ==="
