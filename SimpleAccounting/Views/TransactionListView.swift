@@ -3,59 +3,41 @@ import SwiftData
 
 struct TransactionListView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var transactions: [Transaction] = []
-    @State private var currentPage = 1
-    @State private var isLoading = false
-    @State private var hasMoreData = true
+    @Query(sort: \Transaction.date, order: .reverse) private var allTransactions: [Transaction]
     @State private var isEditMode = false
     @State private var selectedTransactions: Set<UUID> = []
     @State private var showAddTransaction = false
 
-    private let pageSize = 20
-
     var body: some View {
         NavigationStack {
             Group {
-                if transactions.isEmpty && !isLoading {
+                if allTransactions.isEmpty {
                     EmptyTransactionView(showAddTransaction: $showAddTransaction)
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 10) {
-                            ForEach(transactions, id: \.id) { transaction in
-                                TransactionRow(
-                                    transaction: transaction,
-                                    isSelected: selectedTransactions.contains(transaction.id),
-                                    isEditMode: isEditMode,
-                                    onSelect: { id in
-                                        if selectedTransactions.contains(id) {
-                                            selectedTransactions.remove(id)
-                                        } else {
-                                            selectedTransactions.insert(id)
-                                        }
+                    List {
+                        ForEach(allTransactions, id: \.id) { transaction in
+                            TransactionRow(
+                                transaction: transaction,
+                                isSelected: selectedTransactions.contains(transaction.id),
+                                isEditMode: isEditMode,
+                                onSelect: { id in
+                                    if selectedTransactions.contains(id) {
+                                        selectedTransactions.remove(id)
+                                    } else {
+                                        selectedTransactions.insert(id)
                                     }
-                                )
-                            }
-
-                            if isLoading {
-                                ProgressView()
-                                    .padding()
-                            }
-
-                            if !isLoading && hasMoreData {
-                                Color.clear
-                                    .frame(height: 10)
-                                    .onAppear {
-                                        loadMoreData()
-                                    }
-                            }
+                                }
+                            )
                         }
-                        .padding()
+                        .onDelete { offsets in
+                            for index in offsets {
+                                let transaction = allTransactions[index]
+                                modelContext.delete(transaction)
+                            }
+                            try? modelContext.save()
+                        }
                     }
-                }
-            }
-            .onAppear {
-                if transactions.isEmpty {
-                    loadInitialData()
+                    .listStyle(.plain)
                 }
             }
             .navigationTitle("交易记录")
@@ -87,47 +69,13 @@ struct TransactionListView: View {
         }
     }
 
-    private func loadInitialData() {
-        isLoading = true
-        do {
-            let initialTransactions = try DataService.shared.getTransactions(page: 1, pageSize: pageSize)
-            transactions = initialTransactions
-            currentPage = 1
-            hasMoreData = initialTransactions.count == pageSize
-        } catch {
-            print("加载初始数据失败: \(error)")
-        }
-        isLoading = false
-    }
-
-    private func loadMoreData() {
-        guard !isLoading && hasMoreData else { return }
-
-        isLoading = true
-        do {
-            let nextPage = currentPage + 1
-            let moreTransactions = try DataService.shared.getTransactions(page: nextPage, pageSize: pageSize)
-            transactions.append(contentsOf: moreTransactions)
-            currentPage = nextPage
-            hasMoreData = moreTransactions.count == pageSize
-        } catch {
-            print("加载更多数据失败: \(error)")
-        }
-        isLoading = false
-    }
-
     private func batchDelete() {
-        let selectedIds = selectedTransactions
-
-        do {
-            for id in selectedIds {
-                try DataService.shared.deleteTransaction(id: id)
+        for id in selectedTransactions {
+            if let transaction = allTransactions.first(where: { $0.id == id }) {
+                modelContext.delete(transaction)
             }
-            transactions.removeAll { selectedIds.contains($0.id) }
-        } catch {
-            print("删除交易失败: \(error)")
         }
-
+        try? modelContext.save()
         isEditMode = false
         selectedTransactions.removeAll()
     }
@@ -140,40 +88,46 @@ struct TransactionRow: View {
     let onSelect: (UUID) -> Void
 
     var body: some View {
-        NavigationLink {
-            EditTransactionView(transaction: transaction)
-        } label: {
-            HStack {
-                if isEditMode {
-                    Button(action: {
-                        onSelect(transaction.id)
-                    }) {
-                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(isSelected ? .blue : .gray)
-                            .padding(.trailing, 8)
-                    }
+        HStack {
+            if isEditMode {
+                Button(action: {
+                    onSelect(transaction.id)
+                }) {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(isSelected ? .blue : .gray)
+                        .font(.title2)
                 }
-
-                VStack(alignment: .leading) {
-                    Text(transaction.category?.name ?? "未分类")
-                        .font(.headline)
-                    Text(transaction.note)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    Text(transaction.date.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                Text(transaction.type == "income" ? "+\(transaction.amount)" : "-\(transaction.amount)")
-                    .font(.headline)
-                    .foregroundColor(transaction.type == "income" ? .green : .red)
+                .buttonStyle(.plain)
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
+
+            VStack(alignment: .leading) {
+                Text(transaction.category?.name ?? "未分类")
+                    .font(.headline)
+                Text(transaction.note.isEmpty ? "无备注" : transaction.note)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                Text(transaction.date.formatted(date: .abbreviated, time: .shortened))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+            Text(transaction.type == "income" ? "+\(String(format: "%.2f", transaction.amount))" : "-\(String(format: "%.2f", transaction.amount))")
+                .font(.headline)
+                .foregroundColor(transaction.type == "income" ? .green : .red)
         }
-        .disabled(isEditMode)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isEditMode {
+                onSelect(transaction.id)
+            }
+        }
+        .background(
+            NavigationLink(destination: EditTransactionView(transaction: transaction)) {
+                EmptyView()
+            }
+            .opacity(isEditMode ? 0 : 1)
+        )
     }
 }
 
