@@ -31,11 +31,7 @@ class Budget {
         self.alertThreshold = dict["alertThreshold"] as? Double ?? 0.8
         self.currency = dict["currency"] as? String ?? "CNY"
         self.createdAt = (dict["createdAt"] as? String ?? "").dateFromISO8601 ?? Date()
-        
-        // 关联关系处理
-        if let categoryId = dict["categoryId"] as? String, let category = try? context.fetch(FetchDescriptor<Category>(predicate: #Predicate { $0.id.uuidString == categoryId })).first {
-            self.category = category
-        }
+        self.category = nil
     }
     
     func toDictionary() -> [String: Any] {
