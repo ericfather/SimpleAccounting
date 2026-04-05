@@ -177,7 +177,6 @@ class DataService {
                         type: transactionDict["type"] as? String ?? "expense",
                         category: nil,
                         ledger: defaultLedger,
-                        tags: nil,
                         note: transactionDict["note"] as? String ?? "",
                         date: Date(timeIntervalSince1970: transactionDict["date"] as? TimeInterval ?? 0),
                         location: transactionDict["location"] as? String
