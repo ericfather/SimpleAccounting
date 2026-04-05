@@ -33,7 +33,26 @@ jobs:
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGN_STYLE=Manual \
           PROVISIONING_PROFILE_SPECIFIER=""
-
+    - name: Check app architecture (should be arm64)
+      run: |
+        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphoneos/*" -type d | head -n 1)
+        if [ -z "$APP_PATH" ]; then
+          echo "Error: Device .app not found"
+          exit 1
+        fi
+        EXECUTABLE="$APP_PATH/SimpleAccounting"
+        if [ -f "$EXECUTABLE" ]; then
+          echo "=== Architectures in executable ==="
+          lipo -info "$EXECUTABLE"
+          # 检查是否包含 arm64
+          if lipo -info "$EXECUTABLE" | grep -q "arm64"; then
+            echo "✅ arm64 architecture found - good for device"
+          else
+            echo "⚠️ Warning: arm64 not found! This .app may not run on real device."
+          fi
+        else
+          echo "Executable not found"
+        fi
     - name: Find device .app path
       id: find_app
       run: |
