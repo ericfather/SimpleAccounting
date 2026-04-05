@@ -38,19 +38,7 @@ class Transaction {
         self.location = dict["location"] as? String
         self.createdAt = (dict["createdAt"] as? String ?? "").dateFromISO8601 ?? Date()
         self.updatedAt = (dict["updatedAt"] as? String ?? "").dateFromISO8601 ?? Date()
-        
-        // 关联关系处理
-        if let categoryId = dict["categoryId"] as? String, let category = try? context.fetch(FetchDescriptor<Category>(predicate: #Predicate { $0.id.uuidString == categoryId })).first {
-            self.category = category
-        }
-        
-        if let ledgerId = dict["ledgerId"] as? String, let ledger = try? context.fetch(FetchDescriptor<Ledger>(predicate: #Predicate { $0.id.uuidString == ledgerId })).first {
-            self.ledger = ledger
-        }
-        
-        if let tagIds = dict["tagIds"] as? [String] {
-            self.tags = try? context.fetch(FetchDescriptor<Tag>(predicate: #Predicate { tagIds.contains($0.id.uuidString) }))
-        }
+        self.tags = nil
     }
     
     func toDictionary() -> [String: Any] {
