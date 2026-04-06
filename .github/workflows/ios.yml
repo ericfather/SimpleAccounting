@@ -1,4 +1,4 @@
-name: iOS Build (Unsigned IPA)
+name: iOS Build (Simulator & Device)
 
 on:
   push:
@@ -8,75 +8,105 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-simulator:
+    name: Build for Simulator
     runs-on: macos-latest
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install XcodeGen
-      run: brew install xcodegen
+      - name: Install XcodeGen
+        run: brew install xcodegen
 
-    - name: Generate Xcode project
-      run: xcodegen generate
+      - name: Generate Xcode project
+        run: xcodegen generate
 
-    - name: Build for device (unsigned)
-      run: |
-        rm -rf ~/Library/Developer/Xcode/DerivedData/*
-        xcodebuild build \
-          -project SimpleAccounting.xcodeproj \
-          -scheme SimpleAccounting \
-          -sdk iphoneos \
-          -configuration Debug \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGN_STYLE=Manual \
-          PROVISIONING_PROFILE_SPECIFIER=""
-    - name: Check app architecture (should be arm64)
-      run: |
-        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphoneos/*" -type d | head -n 1)
-        if [ -z "$APP_PATH" ]; then
-          echo "Error: Device .app not found"
-          exit 1
-        fi
-        EXECUTABLE="$APP_PATH/SimpleAccounting"
-        if [ -f "$EXECUTABLE" ]; then
-          echo "=== Architectures in executable ==="
-          lipo -info "$EXECUTABLE"
-          # 检查是否包含 arm64
-          if lipo -info "$EXECUTABLE" | grep -q "arm64"; then
-            echo "✅ arm64 architecture found - good for device"
-          else
-            echo "⚠️ Warning: arm64 not found! This .app may not run on real device."
+      - name: Build for Simulator
+        run: |
+          xcodebuild build \
+            -project SimpleAccounting.xcodeproj \
+            -scheme SimpleAccounting \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Find Simulator .app
+        id: find_app
+        run: |
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphonesimulator/*" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Simulator .app not found"
+            exit 1
           fi
-        else
-          echo "Executable not found"
-        fi
-    - name: Find device .app path
-      id: find_app
-      run: |
-        APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphoneos/*" -type d | head -n 1)
-        if [ -z "$APP_PATH" ]; then
-          echo "Error: Device .app not found"
-          exit 1
-        fi
-        echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
-        echo "App found at: $APP_PATH"
-        du -sh "$APP_PATH"
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+          echo "Simulator app found at: $APP_PATH"
 
-    - name: Package .app into unsigned IPA
-      run: |
-        mkdir -p Payload
-        cp -R "$APP_PATH" Payload/
-        zip -r SimpleAccounting_unsigned.ipa Payload
-        rm -rf Payload
-        echo "IPA created: SimpleAccounting_unsigned.ipa"
-        ls -lh SimpleAccounting_unsigned.ipa
+      - name: Package Simulator .app for Appetize.io
+        run: |
+          mkdir -p appetize_temp
+          cp -R "$APP_PATH" appetize_temp/
+          cd appetize_temp
+          zip -r ../SimpleAccounting_Simulator.zip .
+          cd ..
+          rm -rf appetize_temp
+          echo "Simulator zip created: SimpleAccounting_Simulator.zip"
 
-    - name: Upload unsigned IPA
-      uses: actions/upload-artifact@v4
-      with:
-        name: SimpleAccounting-Unsigned-IPA
-        path: SimpleAccounting_unsigned.ipa
-        retention-days: 30
+      - name: Upload Simulator artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleAccounting-Simulator
+          path: SimpleAccounting_Simulator.zip
+          retention-days: 30
+
+  build-device:
+    name: Build for Device (Unsigned IPA)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build for Device (unsigned)
+        run: |
+          xcodebuild build \
+            -project SimpleAccounting.xcodeproj \
+            -scheme SimpleAccounting \
+            -sdk iphoneos \
+            -configuration Debug \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER=""
+
+      - name: Find Device .app
+        id: find_app
+        run: |
+          APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SimpleAccounting.app" -path "*/Debug-iphoneos/*" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Device .app not found"
+            exit 1
+          fi
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+          echo "Device app found at: $APP_PATH"
+
+      - name: Package Device .app into unsigned IPA
+        run: |
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          zip -r SimpleAccounting_Device.ipa Payload
+          rm -rf Payload
+          echo "Unsigned IPA created: SimpleAccounting_Device.ipa"
+
+      - name: Upload Device IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleAccounting-Device
+          path: SimpleAccounting_Device.ipa
+          retention-days: 30
