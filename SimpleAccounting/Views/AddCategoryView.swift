@@ -67,20 +67,27 @@ struct AddCategoryView: View {
                             Button(action: {
                                 selectedIcon = icon
                             }) {
-                                Image(systemName: icon)
-                                    .font(.title2)
-                                    .foregroundColor(selectedIcon == icon ? Color(hex: selectedColor) : .gray)
-                                    .frame(width: 44, height: 44)
-                                    .background(
-                                        selectedIcon == icon ?
-                                        Color(hex: selectedColor).opacity(0.2) :
-                                        Color(.systemGray6)
-                                    )
-                                    .cornerRadius(8)
+                                VStack(spacing: 4) {
+                                    Image(systemName: icon)
+                                        .font(.title2)
+                                        .foregroundColor(selectedIcon == icon ? Color(hex: selectedColor) : .gray)
+                                    
+                                    if selectedIcon == icon {
+                                        Circle()
+                                            .fill(Color(hex: selectedColor))
+                                            .frame(width: 6, height: 6)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(selectedIcon == icon ? Color(hex: selectedColor) : Color.gray.opacity(0.3), lineWidth: selectedIcon == icon ? 2 : 1)
+                                )
                             }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .padding(.vertical, 8)
                 }
 
                 // 颜色选择
@@ -94,16 +101,19 @@ struct AddCategoryView: View {
                                     .fill(Color(hex: color))
                                     .frame(width: 40, height: 40)
                                     .overlay(
-                                        selectedColor == color ?
+                                        Circle()
+                                            .stroke(Color.white, lineWidth: selectedColor == color ? 3 : 0)
+                                    )
+                                    .overlay(
                                         Image(systemName: "checkmark")
                                             .foregroundColor(.white)
-                                            .font(.headline) :
-                                        nil
+                                            .font(.caption)
+                                            .opacity(selectedColor == color ? 1 : 0)
                                     )
                             }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .padding(.vertical, 8)
                 }
 
                 // 预览
